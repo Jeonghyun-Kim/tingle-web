@@ -1,10 +1,14 @@
-import Link from '@components/ui/Link';
 import React from 'react';
 
 const IndexPage = () => {
   return (
-    <div>
-      <h2>홈 입니다.</h2>
+    <div className="container max-w-screen-lg mx-auto">
+      <div className="my-4">
+        <h2>
+          API Docs for <mark>Tingle</mark>
+        </h2>
+        <p>Preparing for now.</p>
+      </div>
     </div>
   );
 };

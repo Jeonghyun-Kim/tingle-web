@@ -79,6 +79,66 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         .json({ accessToken, refreshToken: exUser.refreshToken });
     }
 
+    if (req.method === 'PUT') {
+      const { refreshToken } = req.body;
+      const accessToken = req.headers.authorization;
+
+      if (!accessToken || !refreshToken)
+        return res.status(400).json({
+          code: 'A01',
+          message: 'Missing accessToken or refreshToken.',
+        });
+
+      let userInfo: { userId: string; email: string };
+
+      try {
+        userInfo = jwt.verify(accessToken, JWT_SECRET, {
+          ignoreExpiration: true,
+        }) as { userId: string; email: string };
+      } catch (err) {
+        res.status(401);
+        throw new Error('Invalid accessToken.');
+      }
+
+      const { db } = await connectMongo();
+
+      const user = await db
+        .collection<{ _id: ObjectId; email: string; refreshToken: string }>(
+          'user',
+        )
+        .findOne({
+          _id: new ObjectId(userInfo.userId),
+        });
+
+      if (!user) {
+        return res.status(404).json({ code: 'A04', message: 'No such user.' });
+      }
+
+      await db.collection('user').updateOne(
+        {
+          _id: user._id,
+        },
+        {
+          $push: {
+            signinHistory: { at: new Date() },
+          },
+        },
+      );
+
+      const newAccessToken = jwt.sign(
+        { userId: String(user._id), email: user.email },
+        JWT_SECRET,
+        {
+          expiresIn: '10m',
+        },
+      );
+
+      return res.json({
+        accessToken: newAccessToken,
+        refreshToken: user.refreshToken,
+      });
+    }
+
     return res.status(400).send('Method not exists.');
   } catch (err) {
     return res
