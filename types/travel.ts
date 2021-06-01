@@ -1,32 +1,62 @@
 import { ObjectId } from 'bson';
+import { User } from './user';
 
-export interface TravelLocation {
-  from: string;
-  to: string;
+const AREA_VARIANTS = ['서울', '부산', '제주'] as const;
+export type TingleArea = typeof AREA_VARIANTS[number];
+
+const TRAVEL_PUBLICITY = ['public', 'private', 'archived'] as const;
+const TRAVEL_STATUS = ['open', 'planned', 'closed'] as const;
+
+type TingleDate = {
+  dateString: string;
+} & (
+  | {
+      withTime: true;
+      time: string;
+    }
+  | {
+      withTime: false;
+      time: null;
+    }
+);
+
+interface TingleLocation {
+  area: TingleArea;
+  date: TingleDate;
 }
 
-export interface TravelInfo {
+interface TravelMember {
+  _id: string;
+  name: string;
+  joined: string;
+  exited: string | null;
+}
+
+export interface TravelMemberBSON
+  extends Omit<TravelMember, '_id' | 'joined' | 'exited'> {
   _id: ObjectId;
-  departAt: string;
-  name: string;
-  location: TravelLocation;
-  created: Date;
-  deleted: Date | null;
+  joined: Date;
+  exited: Date | null;
 }
 
-export interface TravelInputs {
-  departAt: string;
+export type Travel = {
+  _id: string;
   name: string;
-  location: TravelLocation;
-}
-
-export const initialTravelInputs: TravelInputs = {
-  departAt: '',
-  name: '',
-  location: {
-    from: '',
-    to: '',
-  },
+  title: string;
+  publicity: typeof TRAVEL_PUBLICITY[number];
+  status: typeof TRAVEL_STATUS[number];
+  creater: Pick<User, '_id' | 'name' | 'profile'>;
+  members: TravelMember[];
+  departure: TingleLocation;
+  arrival: TingleLocation;
+  created: string;
 };
+
+export interface TravelBSON
+  extends Omit<Travel, '_id' | 'members' | 'created'> {
+  _id: ObjectId;
+  members: TravelMemberBSON;
+  created: Date;
+}
 
 export {};

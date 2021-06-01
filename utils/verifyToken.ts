@@ -13,7 +13,7 @@ interface TokenPayload {
 const verifyToken: (
   req: NextApiRequest,
   res: NextApiResponse,
-) => TokenPayload = (req, res) => {
+) => Promise<TokenPayload> = async (req, res) => {
   const accessToken = req.headers.authorization;
 
   if (!accessToken) {

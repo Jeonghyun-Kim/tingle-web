@@ -14,7 +14,7 @@ if (!JWT_SECRET) throw new Error('Missing JWT_SECRET');
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     if (req.method === 'GET') {
-      verifyToken(req, res);
+      await verifyToken(req, res);
 
       return res.status(204).end();
     }
