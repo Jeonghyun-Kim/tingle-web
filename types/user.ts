@@ -15,6 +15,7 @@ export interface ProfileBSON extends Omit<Profile, 'lastUpdated'> {
 
 export interface User {
   _id: string;
+  email: string;
   name: string;
   birthYear: number;
   gender: Gender;
@@ -26,9 +27,40 @@ export interface User {
 export interface UserBSON
   extends Omit<User, '_id' | 'created' | 'lastSignedIn'> {
   _id: ObjectId;
+  password: string;
+  refreshToken: string;
   created: Date;
   lastSignedIn: Date;
   deleted: Date | null;
 }
+
+export const userScopes = {
+  passwordOnly: {
+    _id: 1,
+    password: 1,
+  },
+  refreshTokenOnly: {
+    _id: 1,
+    refreshToken: 1,
+  },
+  emailOnly: {
+    _id: 1,
+    email: 1,
+  },
+  forProfile: {
+    _id: 1,
+    name: 1,
+    profile: 1,
+  },
+  withoutPassword: {
+    password: 0,
+    deleted: 0,
+  },
+  withDetails: {
+    password: 0,
+    refreshToken: 0,
+    deleted: 0,
+  },
+} as const;
 
 export {};

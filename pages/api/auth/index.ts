@@ -137,7 +137,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
   }
 
-  return res.status(400).send('Method not exists.');
+  return res.status(400).end();
 };
 
 export default withErrorHandler(handler);
