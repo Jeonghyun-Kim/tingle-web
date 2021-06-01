@@ -38,14 +38,16 @@ export const userScopes = {
   passwordOnly: {
     _id: 1,
     password: 1,
-  },
-  refreshTokenOnly: {
-    _id: 1,
     refreshToken: 1,
   },
   emailOnly: {
     _id: 1,
     email: 1,
+  },
+  forRefresh: {
+    _id: 1,
+    email: 1,
+    refreshToken: 1,
   },
   forProfile: {
     _id: 1,

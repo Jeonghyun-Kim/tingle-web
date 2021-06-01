@@ -8,6 +8,7 @@ import { isValidPassword } from '@utils/validator/password';
 import connectMongo from '@utils/connectMongo';
 import verifyToken from '@utils/verifyToken';
 import withErrorHandler from '@utils/withErrorHandler';
+import { UserBSON, userScopes } from 'types/user';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('Missing JWT_SECRET');
@@ -37,14 +38,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const { db } = await connectMongo();
 
-    const exUser = await db
-      .collection<{
-        _id: ObjectId;
-        email: string;
-        password: string;
-        refreshToken: string;
-      }>('user')
-      .findOne({ email });
+    const exUser = (await db
+      .collection<UserBSON>('user')
+      .findOne({ email }, { projection: userScopes.passwordOnly })) as Pick<
+      UserBSON,
+      keyof typeof userScopes.passwordOnly
+    >;
     if (!exUser) {
       return res.status(404).json({ code: 'A04', message: 'No such user.' });
     }
@@ -53,7 +52,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(401).json({ code: 'A05', message: 'Password wrong.' });
     }
 
-    await db.collection('user').updateOne(
+    await db.collection<UserBSON>('user').updateOne(
       {
         _id: exUser._id,
       },
@@ -100,28 +99,29 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const { db } = await connectMongo();
 
-    const user = await db
-      .collection<{ _id: ObjectId; email: string; refreshToken: string }>(
-        'user',
-      )
-      .findOne({
+    const user = (await db.collection<UserBSON>('user').findOne(
+      {
         _id: new ObjectId(userInfo.userId),
-      });
+      },
+      {
+        projection: userScopes.forRefresh,
+      },
+    )) as Pick<UserBSON, keyof typeof userScopes.forRefresh>;
 
     if (!user) {
       return res.status(404).json({ code: 'A04', message: 'No such user.' });
     }
 
-    await db.collection('user').updateOne(
-      {
-        _id: user._id,
-      },
-      {
-        $push: {
-          signinHistory: { at: new Date() },
-        },
-      },
-    );
+    // await db.collection<UserBSON>('user').updateOne(
+    //   {
+    //     _id: user._id,
+    //   },
+    //   {
+    //     $push: {
+    //       signinHistory: { at: new Date() },
+    //     },
+    //   },
+    // );
 
     const newAccessToken = jwt.sign(
       { userId: String(user._id), email: user.email },
