@@ -70,6 +70,10 @@ export interface TravelBSON
 }
 
 export const travelScopes = {
+  default: {
+    lastUpdated: 0,
+    deleted: 0,
+  },
   simplified: {
     _id: 1,
     title: 1,
