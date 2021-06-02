@@ -3,11 +3,13 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'bson';
 
-import { isValidEmail } from '@utils/validator/email';
-import { isValidPassword } from '@utils/validator/password';
+import { isValidEmail } from '@utils/validator/user/email';
+import { isValidPassword } from '@utils/validator/user/password';
 import connectMongo from '@utils/connectMongo';
 import verifyToken from '@utils/verifyToken';
 import withErrorHandler from '@utils/withErrorHandler';
+
+// types
 import { UserBSON, userScopes } from 'types/user';
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -122,6 +124,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     //     },
     //   },
     // );
+
+    await db.collection<UserBSON>('user').updateOne(
+      {
+        _id: user._id,
+      },
+      {
+        $set: { lastSignedIn: new Date() },
+      },
+    );
 
     const newAccessToken = jwt.sign(
       { userId: String(user._id), email: user.email },

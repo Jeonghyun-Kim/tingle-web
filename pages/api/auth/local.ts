@@ -3,8 +3,8 @@ import { v4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { isValidEmail } from '@utils/validator/email';
-import { isValidPassword } from '@utils/validator/password';
+import { isValidEmail } from '@utils/validator/user/email';
+import { isValidPassword } from '@utils/validator/user/password';
 import connectMongo from '@utils/connectMongo';
 
 const BCRYPT_SALT = 10 as const;
@@ -25,7 +25,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       isValidEmail(email);
       isValidPassword(password);
     } catch (err) {
-      return res.status(400).json({ code: 'A02', messsage: err.message });
+      return res.status(400).json({ code: 'A02', message: err.message });
     }
 
     const { db } = await connectMongo();

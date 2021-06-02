@@ -1,5 +1,5 @@
-import isString from './isString';
 import isEmail from 'validator/lib/isEmail';
+import isString from '../isString';
 
 export function isValidEmail(email: any): email is string {
   if (!isString(email))
