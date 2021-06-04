@@ -1,4 +1,4 @@
-import isString from './isString';
+import isString from '../isString';
 
 export function isValidPassword(password: any): password is string {
   if (!isString(password))

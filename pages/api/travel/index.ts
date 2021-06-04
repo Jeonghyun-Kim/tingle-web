@@ -33,6 +33,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             membersCount: {
               $size: '$members',
             },
+            picturesCount: {
+              $size: '$pictures',
+            },
           },
         },
         {
@@ -86,6 +89,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           exited: null,
         },
       ],
+      pictures: [],
       created: now,
       lastUpdated: null,
       deleted: null,

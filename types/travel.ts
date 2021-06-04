@@ -1,4 +1,5 @@
 import { ObjectId } from 'bson';
+import { TinglePicture, TinglePictureBSON } from './image';
 import { User, UserBSON } from './user';
 
 export const AREA_VARIANTS = ['서울', '부산', '제주'] as const;
@@ -49,21 +50,23 @@ export interface TravelInput {
   publicity: typeof TRAVEL_PUBLICITY[number];
   status: typeof TRAVEL_STATUS[number];
   departure: TingleLocation;
-  arrival: TingleLocation;
+  arrival: string;
 }
 
 export interface Travel extends TravelInput {
   _id: string;
   creater: Pick<User, '_id' | 'name' | 'profile'>;
   members: TravelMember[];
+  pictures: TinglePicture[];
   created: string;
 }
 
 export interface TravelBSON
-  extends Omit<Travel, '_id' | 'creater' | 'members' | 'created'> {
+  extends Omit<Travel, '_id' | 'creater' | 'members' | 'pictures' | 'created'> {
   _id: ObjectId;
   creater: Pick<UserBSON, '_id' | 'name' | 'profile'>;
   members: TravelMemberBSON[];
+  pictures: TinglePictureBSON[];
   created: Date;
   lastUpdated: Date | null;
   deleted: Date | null;
@@ -90,6 +93,7 @@ export type SimplifiedTravel = Pick<
   keyof typeof travelScopes.simplified
 > & {
   membersCount: number;
+  picturesCount: number;
 };
 
 export {};
